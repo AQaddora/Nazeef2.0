@@ -12,9 +12,6 @@ public class PlayerMovement : MonoBehaviour
 	public static PlayerMovement Instance;
 	public float speed = 10;
 	public float jumbSpeed = 10;
-	public Image healthBar;
-	public float health = 100;
-	public GameObject bulletPrefab;
 	private Rigidbody2D rb;
 	private bool isGrounded = false;
 	private float scaleX;
@@ -30,19 +27,15 @@ public class PlayerMovement : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-
-		if (Input.GetKeyDown(KeyCode.X) || Input.GetMouseButtonDown(0))
-		{
-			GameObject obj = Instantiate(bulletPrefab);
-			obj.transform.SetParent(transform);
-		}
-		isGrounded = transform.position.y <= -4.5f;
+		if (!PlayerManagement.Instance.isPlaying)
+			return;
+		speed += Time.deltaTime * 10;
 		float h = speed * Time.deltaTime;
 		rb.velocity = new Vector2(h, rb.velocity.y);
 
 		if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
 		{
-			rb.AddForce(new Vector2(0, jumbSpeed * Time.deltaTime));
+			rb.AddForce(new Vector2(0, jumbSpeed), ForceMode2D.Impulse);
 		}
 
 		if(rb.velocity.x < 0)
@@ -55,13 +48,19 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
-	public void UpdateHealth()
+	private void OnCollisionEnter2D(Collision2D collision)
 	{
-		health -= 25;
-		if (health <= 0)
-			SceneManager.LoadScene(0);
-
-		healthBar.fillAmount -= 0.25f;
+		if (collision.transform.tag.Equals("Ground"))
+		{
+			isGrounded = true;
+		}
+	}
+	private void OnCollisionExit2D(Collision2D collision)
+	{
+		if (collision.transform.tag.Equals("Ground"))
+		{
+			isGrounded = false;
+		}
 	}
 	#endregion
 }

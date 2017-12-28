@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 	private Transform target;
 	public float smoothSpeed = 0.2f;
 	public Vector3 offset;
+	public Vector2 yLimits, xLimits;
 	#endregion
 
 	#region Unity Methods
@@ -15,10 +16,15 @@ public class CameraController : MonoBehaviour
 	}
 	private void FixedUpdate()
 	{
+		if (!PlayerManagement.Instance.isPlaying)
+			return;
+
+		Debug.Log(target.name + target.position);
 		Vector3 newPos = Vector3.Lerp(transform.position, target.position + offset, smoothSpeed * Time.deltaTime);
-		transform.position = newPos;
-		float yPos = Mathf.Clamp(transform.position.y, -0.6f,0.6f);
-		transform.position = new Vector3(transform.position.x, yPos, transform.position.z);
+		Debug.Log(newPos);
+		float xPos = Mathf.Clamp(newPos.x, xLimits.x,xLimits.y);
+		float yPos = Mathf.Clamp(newPos.y, yLimits.x,yLimits.y);
+		transform.position = new Vector3(xPos, yPos, newPos.z);
 	}
 	#endregion
 }
